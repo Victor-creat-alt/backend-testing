@@ -50,7 +50,6 @@ pytz==2025.2
 qrcode==7.4.2
 referencing==0.35.1
 requests==2.32.3
-rpds-py==0.10.1
 sqlalchemy==2.0.40
 sqlalchemy-serializer==1.4.12
 starkbank-ecdsa==2.2.0
