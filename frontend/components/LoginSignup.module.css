@@ -1,0 +1,79 @@
+.login-container {
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.wrapper {
+  position: relative;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: 0.5s;
+}
+
+.wrapper.active {
+  height: 520px;
+}
+
+.form-box {
+  padding: 40px;
+}
+
+.form-box.login {
+  height: 360px;
+}
+
+.form-box.register {
+  height: 520px;
+}
+
+.input-box {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.input-box input {
+  width: 100%;
+  padding: 10px 40px 10px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #00ccbc;
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #00ccbc;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #009e94;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 10px;
+}
+
+.forgot-password-link {
+  text-align: right;
+}
+
+.register-link {
+  text-align: center;
+  margin-top: 10px;
+}

@@ -6,10 +6,11 @@ class Cart(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
-    updated_at = db.Column(db.DateTime(timezone=True), onupdate=func.now())
+    created_at = db.Column(db.DateTime(timezone=True), server_default=func.now(), nullable=False)
+    total_price = db.Column(db.Float, nullable=False, default=0.0)
 
-    #A cart belongs to a user
+    # Relationships
     user = db.relationship('User', back_populates='cart')
-    #A cart can have many items
-    cart_items = db.relationship('CartItem', back_populates='cart', cascade='all, delete-orphan')
+    items = db.relationship('CartItem', back_populates='cart', lazy=True, cascade='all, delete-orphan')
+
+    

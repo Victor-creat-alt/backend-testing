@@ -1,0 +1,31 @@
+Frontend Registration Fix Notes:
+
+Issue:
+- Backend expects a "name" field in the registration POST data.
+- Frontend handleRegistration function was sending only email and password.
+- This caused a 400 Bad Request error from the backend due to validation failure.
+
+Fix:
+- Update the frontend component's formData state initialization to include "name" with an empty string.
+- Update the handleRegistration function to include the "name" field from formData in the POST data sent to the backend.
+- This aligns the frontend data with backend expectations.
+- No backend changes are required as it already maps "name" to "username" internally.
+
+Summary of changes in the React component:
+- Initialize formData state as:
+  {
+    name: '',
+    email: '',
+    password: '',
+    otp: '',
+  }
+- In handleRegistration, send data as:
+  {
+    name: formData.name,
+    email: formData.email,
+    password: formData.password,
+  }
+
+This will resolve the 400 error on registration.
+
+End of notes.

@@ -1,0 +1,21 @@
+Step 1: Access PostgreSQL as the postgres superuser:
+sudo -u postgres psql
+
+Step 2: Create the database user 'victor' with a password:
+CREATE USER victor WITH PASSWORD 'your_secure_password';
+
+Step 3: Create the database 'vetty':
+CREATE DATABASE vetty OWNER victor;
+
+Step 4: Grant all privileges on the database to the user:
+GRANT ALL PRIVILEGES ON DATABASE vetty TO victor;
+
+Step 5: Exit the psql prompt:
+\q
+
+Step 6: Update your alembic.ini and app config to use the new password in the connection string:
+postgresql://victor:your_secure_password@localhost:5432/vetty
+
+Step 7: Test the connection by running Alembic migration commands again:
+flask db migrate -m 'created database'
+flask db upgrade
