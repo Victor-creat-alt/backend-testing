@@ -1,126 +1,149 @@
 import smtplib
-from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from flask import current_app
+from email.mime.multipart import MIMEMultipart
+import os
+import logging
+import ssl  # Import the ssl module
 
-def send_verification_email(to_email, token):
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+
+def send_verification_email(email, verification_code):
     """
-    Send an email with a black button to verify the user's email address.
+    Send a verification email with a token.
+
+    Note:
+    - Ensure SMTP_EMAIL and SMTP_PASSWORD environment variables are set correctly.
+    - If using Gmail with 2FA enabled, use an App Password instead of your regular password.
+    - SMTP_SERVER defaults to smtp.gmail.com and SMTP_PORT defaults to 587 (STARTTLS).
     """
+    sender_email = os.getenv("SMTP_EMAIL")
+    sender_password = os.getenv("SMTP_PASSWORD")
+    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_port = os.getenv("SMTP_PORT")
+
+    if not sender_email or not sender_password or not smtp_server or not smtp_port:
+        raise ValueError("SMTP configuration is incomplete. Please set SMTP_EMAIL, SMTP_PASSWORD, SMTP_SERVER, and SMTP_PORT environment variables.")
+
     try:
-        smtp_server = current_app.config.get('SMTP_SERVER')
-        smtp_port = current_app.config.get('SMTP_PORT')
-        smtp_username = current_app.config.get('SMTP_EMAIL')
-        smtp_password = current_app.config.get('SMTP_PASSWORD')
-        from_email = current_app.config.get('MAIL_DEFAULT_SENDER')
+        smtp_port = int(smtp_port)
+    except ValueError:
+        raise ValueError("SMTP_PORT environment variable must be an integer.")
 
-        # Validation for required config values
-        if not smtp_server:
-            raise ValueError("SMTP_SERVER configuration is missing.")
-        if not smtp_port:
-            raise ValueError("SMTP_PORT configuration is missing.")
-        if not smtp_username:
-            raise ValueError("SMTP_EMAIL configuration is missing.")
-        if not smtp_password:
-            raise ValueError("SMTP_PASSWORD configuration is missing.")
-        if not from_email:
-            raise ValueError("MAIL_DEFAULT_SENDER configuration is missing.")
+    logging.info(f"Using SMTP server: {smtp_server} on port {smtp_port} with user {sender_email}")
 
-        verify_url = f"{current_app.config.get('FRONTEND_URL')}/verify-email?token={token}"
+    subject = "Verify Your Email - Vetty"
+    html_content = f"""
+    <p>Thank you for registering with Vetty!</p>
+    <p>Please use the following verification code to verify your email:</p>
+    <h3>{verification_code}</h3>
+    <p>If you did not request this, please ignore this email.</p>
+    """
+    plain_text_content = f"""
+    Thank you for registering with Vetty!
+    Please use the following verification code to verify your email: {verification_code}
+    If you did not request this, please ignore this email.
+    """
 
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = "Verify Your Email"
-        msg['From'] = from_email
-        msg['To'] = to_email
+    message = MIMEMultipart("alternative")
+    message["From"] = sender_email
+    message["To"] = email
+    message["Subject"] = subject
+    message.attach(MIMEText(plain_text_content, "plain"))
+    message.attach(MIMEText(html_content, "html"))
 
-        html = f"""
-        <html>
-          <body>
-            <p>Please verify your email by clicking the button below:</p>
-            <a href="{verify_url}" style="
-                display: inline-block;
-                padding: 12px 24px;
-                font-size: 16px;
-                color: white;
-                background-color: black;
-                text-decoration: none;
-                border-radius: 4px;
-                font-weight: bold;
-            ">Verify Your Email</a>
-            <p>If you did not create an account, please ignore this email.</p>
-          </body>
-        </html>
-        """
-
-        part = MIMEText(html, 'html')
-        msg.attach(part)
-
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.sendmail(from_email, to_email, msg.as_string())
-
+    context = ssl.create_default_context()  # Create a secure context
+    try:
+        if smtp_port == 465:
+            # Use SMTP_SSL for port 465
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
+                server.login(sender_email, sender_password)  # Login to the SMTP server
+                server.sendmail(sender_email, email, message.as_string())  # Send the email
+        else:
+            # Use STARTTLS for other ports (e.g., 587)
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls(context=context)  # Start TLS encryption
+                server.login(sender_email, sender_password)  # Login to the SMTP server
+                server.sendmail(sender_email, email, message.as_string())  # Send the email
+        logging.info(f"Verification email sent to {email}")
+    except smtplib.SMTPAuthenticationError as e:
+        logging.error("Failed to authenticate with the SMTP server. Check your email and password. Ensure you are using an App Password if you have 2FA enabled on your email account.")
+        logging.error(f"SMTPAuthenticationError details: {e}")
+        raise
+    except smtplib.SMTPException as e:
+        logging.error(f"SMTP error occurred: {e}")
+        raise
     except Exception as e:
-        current_app.logger.error(f"Failed to send verification email to {to_email}: {e}")
+        logging.error(f"An unexpected error occurred: {e}")
         raise
 
-def send_password_reset_email(to_email, token):
+def send_password_reset_email(email, token):
     """
-    Send an email with a black button to reset the user's password.
+    Send a password reset email with a reset token.
+
+    Note:
+    - Ensure SMTP_EMAIL and SMTP_PASSWORD environment variables are set correctly.
+    - The reset link includes the token as a query parameter.
     """
+    sender_email = os.getenv("SMTP_EMAIL")
+    sender_password = os.getenv("SMTP_PASSWORD")
+    smtp_server = os.getenv("SMTP_SERVER")
+    smtp_port = os.getenv("SMTP_PORT")
+    frontend_url = os.getenv("FRONTEND_URL")  # URL of the frontend app to handle reset link
+
+    if not sender_email or not sender_password or not smtp_server or not smtp_port or not frontend_url:
+        raise ValueError("SMTP configuration or FRONTEND_URL is incomplete. Please set SMTP_EMAIL, SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, and FRONTEND_URL environment variables.")
+
     try:
-        smtp_server = current_app.config.get('SMTP_SERVER')
-        smtp_port = current_app.config.get('SMTP_PORT')
-        smtp_username = current_app.config.get('SMTP_EMAIL')
-        smtp_password = current_app.config.get('SMTP_PASSWORD')
-        from_email = current_app.config.get('MAIL_DEFAULT_SENDER')
+        smtp_port = int(smtp_port)
+    except ValueError:
+        raise ValueError("SMTP_PORT environment variable must be an integer.")
 
-        # Validation for required config values
-        if not smtp_server:
-            raise ValueError("SMTP_SERVER configuration is missing.")
-        if not smtp_port:
-            raise ValueError("SMTP_PORT configuration is missing.")
-        if not smtp_username:
-            raise ValueError("SMTP_EMAIL configuration is missing.")
-        if not smtp_password:
-            raise ValueError("SMTP_PASSWORD configuration is missing.")
-        if not from_email:
-            raise ValueError("MAIL_DEFAULT_SENDER configuration is missing.")
+    reset_link = f"{frontend_url}/reset-password?token={token}"
 
-        reset_url = f"{current_app.config.get('FRONTEND_URL')}/reset-password?token={token}"
+    logging.info(f"Using SMTP server: {smtp_server} on port {smtp_port} with user {sender_email}")
 
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = "Reset Your Password"
-        msg['From'] = from_email
-        msg['To'] = to_email
+    subject = "Reset Your Password - Vetty"
+    html_content = f"""
+    <p>You requested to reset your password.</p>
+    <p>Please click the link below to reset your password:</p>
+    <a href="{reset_link}">Reset Password</a>
+    <p>If you did not request this, please ignore this email.</p>
+    """
+    plain_text_content = f"""
+    You requested to reset your password.
+    Please use the following link to reset your password: {reset_link}
+    If you did not request this, please ignore this email.
+    """
 
-        html = f"""
-        <html>
-          <body>
-            <p>You requested a password reset. Click the button below to reset your password:</p>
-            <a href="{reset_url}" style="
-                display: inline-block;
-                padding: 12px 24px;
-                font-size: 16px;
-                color: white;
-                background-color: black;
-                text-decoration: none;
-                border-radius: 4px;
-                font-weight: bold;
-            ">Reset Password</a>
-            <p>If you did not request this, please ignore this email.</p>
-          </body>
-        </html>
-        """
+    message = MIMEMultipart("alternative")
+    message["From"] = sender_email
+    message["To"] = email
+    message["Subject"] = subject
+    message.attach(MIMEText(plain_text_content, "plain"))
+    message.attach(MIMEText(html_content, "html"))
 
-        part = MIMEText(html, 'html')
-        msg.attach(part)
-
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()
-            server.login(smtp_username, smtp_password)
-            server.sendmail(from_email, to_email, msg.as_string())
-
+    context = ssl.create_default_context()  # Create a secure context
+    try:
+        if smtp_port == 465:
+            # Use SMTP_SSL for port 465
+            with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
+                server.login(sender_email, sender_password)  # Login to the SMTP server
+                server.sendmail(sender_email, email, message.as_string())  # Send the email
+        else:
+            # Use STARTTLS for other ports (e.g., 587)
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls(context=context)  # Start TLS encryption
+                server.login(sender_email, sender_password)  # Login to the SMTP server
+                server.sendmail(sender_email, email, message.as_string())  # Send the email
+        logging.info(f"Password reset email sent to {email}")
+    except smtplib.SMTPAuthenticationError as e:
+        logging.error("Failed to authenticate with the SMTP server. Check your email and password. Ensure you are using an App Password if you have 2FA enabled on your email account.")
+        logging.error(f"SMTPAuthenticationError details: {e}")
+        raise
+    except smtplib.SMTPException as e:
+        logging.error(f"SMTP error occurred: {e}")
+        raise
     except Exception as e:
-        current_app.logger.error(f"Failed to send password reset email to {to_email}: {e}")
+        logging.error(f"An unexpected error occurred: {e}")
         raise

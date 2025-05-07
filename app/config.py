@@ -17,8 +17,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://victor:1234@localhost:5432/vetty")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
-    # Frontend URL
-    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+   
 
     # Debugging and Testing
     TESTING = os.getenv("TESTING", "False").lower() in ["true", "1"]
