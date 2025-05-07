@@ -61,3 +61,4 @@ werkzeug==2.3.8
 zipp==3.20.2
 sendgrid==6.11.0
 six==1.17.0
+gunicorn
