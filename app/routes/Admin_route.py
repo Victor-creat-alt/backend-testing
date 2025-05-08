@@ -5,11 +5,27 @@ from app.models.Product import Product
 from app.models.Service_request import ServiceRequest
 from app import db
 from app.utils.auth_util import role_required
+from flask_jwt_extended import verify_jwt_in_request, get_jwt
+from flask_jwt_extended.exceptions import NoAuthorizationError
+from functools import wraps
 
 admin_bp = Blueprint('admin', __name__)
 
+def admin_role_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        try:
+            verify_jwt_in_request()
+            claims = get_jwt()
+            if claims.get("role", None) != "Admin":
+                return jsonify({"error": "Admin access required"}), 403
+        except NoAuthorizationError:
+            return jsonify({"error": "Authorization token required"}), 401
+        return fn(*args, **kwargs)
+    return wrapper
+
 @admin_bp.route('/admin/users', methods=['GET'])
-@role_required("Admin")
+@admin_role_required
 def get_all_users():
     """
     Get all users in the system (Admin only).
@@ -24,7 +40,7 @@ def get_all_users():
     } for user in users]), 200
 
 @admin_bp.route('/admin/orders', methods=['GET'])
-@role_required("Admin")
+@admin_role_required
 def get_all_orders():
     """
     Get all orders in the system (Admin only).
@@ -39,7 +55,7 @@ def get_all_orders():
     } for order in orders]), 200
 
 @admin_bp.route('/admin/products/<int:product_id>/stock', methods=['PUT'])
-@role_required("Admin")
+@admin_role_required
 def update_stock(product_id):
     """
     Update the stock quantity of a product (Admin only).
@@ -54,7 +70,7 @@ def update_stock(product_id):
     return jsonify({"message": "Stock updated successfully", "product_id": product.id, "stock_quantity": product.stock_quantity}), 200
 
 @admin_bp.route('/admin/products/<int:product_id>', methods=['PUT'])
-@role_required("Admin")
+@admin_role_required
 def update_product(product_id):
     """
     Update the details of a specific product (Admin only).
@@ -87,7 +103,7 @@ def update_product(product_id):
     }), 200
 
 @admin_bp.route('/admin/stats/revenue', methods=['GET'])
-@role_required("Admin")
+@admin_role_required
 def get_revenue_stats():
     """
     Get revenue statistics (Admin only).
@@ -100,45 +116,57 @@ def get_revenue_stats():
     }), 200
 
 @admin_bp.route('/admin/service_requests/<int:request_id>/approve', methods=['PUT'])
-@role_required("Admin")
+@admin_bp.route('/admin/service_requests/<int:request_id>/approve/', methods=['PUT'])
+@admin_role_required
 def approve_service_request(request_id):
     """
     Approve a service request (Admin only).
     """
+    print(f"Approving service request with id={request_id}")
     service_request = ServiceRequest.query.get_or_404(request_id)
     service_request.status = "approved"
     db.session.commit()
+    print(f"Service request {request_id} approved")
     return jsonify({"message": "Service request approved successfully"}), 200
 
 @admin_bp.route('/admin/service_requests/<int:request_id>/disapprove', methods=['PUT'])
-@role_required("Admin")
+@admin_bp.route('/admin/service_requests/<int:request_id>/disapprove/', methods=['PUT'])
+@admin_role_required
 def disapprove_service_request(request_id):
     """
     Disapprove a service request (Admin only).
     """
+    print(f"Disapproving service request with id={request_id}")
     service_request = ServiceRequest.query.get_or_404(request_id)
     service_request.status = "disapproved"
     db.session.commit()
+    print(f"Service request {request_id} disapproved")
     return jsonify({"message": "Service request disapproved successfully"}), 200
 
 @admin_bp.route('/admin/orders/<int:order_id>/approve', methods=['PUT'])
-@role_required("Admin")
+@admin_bp.route('/admin/orders/<int:order_id>/approve/', methods=['PUT'])
+@admin_role_required
 def approve_order(order_id):
     """
     Approve a product order (Admin only).
     """
+    print(f"Approving order with id={order_id}")
     order = Order.query.get_or_404(order_id)
     order.status = "approved"
     db.session.commit()
+    print(f"Order {order_id} approved")
     return jsonify({"message": "Order approved successfully"}), 200
 
 @admin_bp.route('/admin/orders/<int:order_id>/disapprove', methods=['PUT'])
-@role_required("Admin")
+@admin_bp.route('/admin/orders/<int:order_id>/disapprove/', methods=['PUT'])
+@admin_role_required
 def disapprove_order(order_id):
     """
     Disapprove a product order (Admin only).
     """
+    print(f"Disapproving order with id={order_id}")
     order = Order.query.get_or_404(order_id)
     order.status = "disapproved"
     db.session.commit()
+    print(f"Order {order_id} disapproved")
     return jsonify({"message": "Order disapproved successfully"}), 200

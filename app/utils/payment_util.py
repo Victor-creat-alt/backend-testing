@@ -17,7 +17,13 @@ def get_mpesa_access_token():
     # Production URL for OAuth token generation
     url = "https://api.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials"
     response = requests.get(url, auth=(MPESA_CONSUMER_KEY, MPESA_CONSUMER_SECRET))
-    response_data = response.json()
+    if response.status_code != 200:
+        # Log error or handle it accordingly
+        return None
+    try:
+        response_data = response.json()
+    except Exception:
+        return None
     return response_data.get("access_token")
 
 def initiate_stk_push(phone_number, amount, account_reference, transaction_desc):

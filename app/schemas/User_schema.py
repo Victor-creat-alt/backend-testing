@@ -55,12 +55,22 @@ class UserSchema(SQLAlchemyAutoSchema):
     # Custom validation for uniqueness
     @validates('username')
     def validate_username_unique(self, username):
-        existing_user = User.query.filter_by(username=username).first()
+        # Exclude current user when updating
+        user_id = self.context.get('user_id') if self.context else None
+        query = User.query.filter_by(username=username)
+        if user_id:
+            query = query.filter(User.id != user_id)
+        existing_user = query.first()
         if existing_user:
             raise ValidationError("A user with this username already exists.")
 
     @validates('email')
     def validate_email_unique(self, email):
-        existing_email = User.query.filter_by(email=email).first()
+        # Exclude current user when updating
+        user_id = self.context.get('user_id') if self.context else None
+        query = User.query.filter_by(email=email)
+        if user_id:
+            query = query.filter(User.id != user_id)
+        existing_email = query.first()
         if existing_email:
             raise ValidationError("A user with this email already exists.")

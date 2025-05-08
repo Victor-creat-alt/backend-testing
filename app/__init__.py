@@ -31,8 +31,9 @@ def create_app():
     migrate.init_app(app, db)
     mail.init_app(app)  # Initialize Flask-Mail with app
 
-    # Enable CORS for all routes and origins
-    CORS(app)
+    import os
+    # Enable CORS for all routes and origins, restrict to FRONTEND_URL or default localhost:3000
+    CORS(app, origins=os.getenv("FRONTEND_URL", "http://localhost:5173"))
 
     # Import and register all blueprints
     from app.routes import (

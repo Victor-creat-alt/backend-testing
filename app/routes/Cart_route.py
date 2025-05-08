@@ -44,12 +44,8 @@ class CartListResource(Resource):
         if existing_cart:
             return cart_schema.dump(existing_cart), 200 # Or maybe 409 Conflict
         try:
-            from datetime import datetime
-            now = datetime.now()
-
             cart = Cart(
-                user_id=user_id,
-                updated_at=now
+                user_id=user_id
             )
 
             db.session.add(cart)

@@ -10,27 +10,50 @@ def mpesa_payment():
     """
     Handle M-Pesa payment initiation.
     """
+    import logging
     data = request.get_json()
     phone_number = data.get("phone_number")
     amount = data.get("amount")
+    order_id = data.get("order_id")
     account_reference = data.get("account_reference", "VETTY")
     transaction_desc = data.get("transaction_desc", "Payment for services")
 
     if not phone_number or not amount:
+        logging.error("Phone number and amount are required")
         return jsonify({"error": "Phone number and amount are required"}), 400
 
-    response = initiate_stk_push(phone_number, amount, account_reference, transaction_desc)
+    if not order_id:
+        logging.error("order_id is required")
+        return jsonify({"error": "order_id is required"}), 400
+
+    # Validate order existence
+    from app.models.Order import Order
+    order = Order.query.get(order_id)
+    if not order:
+        logging.error(f"Order with id {order_id} does not exist")
+        return jsonify({"error": f"Order with id {order_id} does not exist"}), 400
+
+    try:
+        response = initiate_stk_push(phone_number, amount, account_reference, transaction_desc)
+    except Exception as e:
+        logging.error(f"Failed to initiate STK push: {str(e)}")
+        return jsonify({"error": "Failed to initiate payment", "details": str(e)}), 500
 
     # Save payment details to the database
     payment = Payment(
-        order_id=data.get("order_id"),
+        order_id=order_id,
         payment_method="m-pesa",
         amount=amount,
         status="pending",
         transaction_id=response.get("CheckoutRequestID"),
     )
-    db.session.add(payment)
-    db.session.commit()
+    try:
+        db.session.add(payment)
+        db.session.commit()
+    except Exception as e:
+        db.session.rollback()
+        logging.error(f"Failed to save payment: {str(e)}")
+        return jsonify({"error": "Failed to save payment", "details": str(e)}), 500
 
     return jsonify({"message": "Payment initiated", "response": response}), 200
 

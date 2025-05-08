@@ -3,7 +3,7 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import os
 import logging
-import ssl  # Import the ssl module
+import ssl
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,11 +19,11 @@ def send_verification_email(email, verification_code):
     """
     sender_email = os.getenv("SMTP_EMAIL")
     sender_password = os.getenv("SMTP_PASSWORD")
-    smtp_server = os.getenv("SMTP_SERVER")
-    smtp_port = os.getenv("SMTP_PORT")
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port = os.getenv("SMTP_PORT", "587")
 
-    if not sender_email or not sender_password or not smtp_server or not smtp_port:
-        raise ValueError("SMTP configuration is incomplete. Please set SMTP_EMAIL, SMTP_PASSWORD, SMTP_SERVER, and SMTP_PORT environment variables.")
+    if not sender_email or not sender_password:
+        raise ValueError("SMTP_EMAIL and SMTP_PASSWORD environment variables must be set.")
 
     try:
         smtp_port = int(smtp_port)
@@ -52,19 +52,17 @@ def send_verification_email(email, verification_code):
     message.attach(MIMEText(plain_text_content, "plain"))
     message.attach(MIMEText(html_content, "html"))
 
-    context = ssl.create_default_context()  # Create a secure context
+    context = ssl.create_default_context()
     try:
         if smtp_port == 465:
-            # Use SMTP_SSL for port 465
             with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
-                server.login(sender_email, sender_password)  # Login to the SMTP server
-                server.sendmail(sender_email, email, message.as_string())  # Send the email
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, message.as_string())
         else:
-            # Use STARTTLS for other ports (e.g., 587)
             with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls(context=context)  # Start TLS encryption
-                server.login(sender_email, sender_password)  # Login to the SMTP server
-                server.sendmail(sender_email, email, message.as_string())  # Send the email
+                server.starttls(context=context)
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, message.as_string())
         logging.info(f"Verification email sent to {email}")
     except smtplib.SMTPAuthenticationError as e:
         logging.error("Failed to authenticate with the SMTP server. Check your email and password. Ensure you are using an App Password if you have 2FA enabled on your email account.")
@@ -87,12 +85,12 @@ def send_password_reset_email(email, token):
     """
     sender_email = os.getenv("SMTP_EMAIL")
     sender_password = os.getenv("SMTP_PASSWORD")
-    smtp_server = os.getenv("SMTP_SERVER")
-    smtp_port = os.getenv("SMTP_PORT")
-    frontend_url = os.getenv("FRONTEND_URL")  # URL of the frontend app to handle reset link
+    smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
+    smtp_port = os.getenv("SMTP_PORT", "587")
+    frontend_url = os.getenv("FRONTEND_URL")
 
-    if not sender_email or not sender_password or not smtp_server or not smtp_port or not frontend_url:
-        raise ValueError("SMTP configuration or FRONTEND_URL is incomplete. Please set SMTP_EMAIL, SMTP_PASSWORD, SMTP_SERVER, SMTP_PORT, and FRONTEND_URL environment variables.")
+    if not sender_email or not sender_password or not frontend_url:
+        raise ValueError("SMTP_EMAIL, SMTP_PASSWORD, and FRONTEND_URL environment variables must be set.")
 
     try:
         smtp_port = int(smtp_port)
@@ -123,19 +121,17 @@ def send_password_reset_email(email, token):
     message.attach(MIMEText(plain_text_content, "plain"))
     message.attach(MIMEText(html_content, "html"))
 
-    context = ssl.create_default_context()  # Create a secure context
+    context = ssl.create_default_context()
     try:
         if smtp_port == 465:
-            # Use SMTP_SSL for port 465
             with smtplib.SMTP_SSL(smtp_server, smtp_port, context=context) as server:
-                server.login(sender_email, sender_password)  # Login to the SMTP server
-                server.sendmail(sender_email, email, message.as_string())  # Send the email
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, message.as_string())
         else:
-            # Use STARTTLS for other ports (e.g., 587)
             with smtplib.SMTP(smtp_server, smtp_port) as server:
-                server.starttls(context=context)  # Start TLS encryption
-                server.login(sender_email, sender_password)  # Login to the SMTP server
-                server.sendmail(sender_email, email, message.as_string())  # Send the email
+                server.starttls(context=context)
+                server.login(sender_email, sender_password)
+                server.sendmail(sender_email, email, message.as_string())
         logging.info(f"Password reset email sent to {email}")
     except smtplib.SMTPAuthenticationError as e:
         logging.error("Failed to authenticate with the SMTP server. Check your email and password. Ensure you are using an App Password if you have 2FA enabled on your email account.")

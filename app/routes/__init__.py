@@ -10,15 +10,14 @@ from .User_route import user_bp
 from .Service_route import service_bp
 
 __all__ = [
-    "user_bp",
-    "product_bp",
-    "service_bp",
+    "admin_bp",  # Added
+    "auth_bp",   # Added
     "cart_bp",
     "cart_item_bp",
     "order_bp",
+    "payment_bp", # Added
+    "product_bp",
+    "service_bp",
     "service_request_bp",
-    "admin_bp",
-    "auth_bp",
-    "payment_bp"
+    "user_bp",
 ]
-##in working
