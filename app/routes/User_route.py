@@ -134,7 +134,10 @@ class VerifyOTPResource(Resource):
         email = data.get("email")
         otp = data.get("otp")
 
-        if email in otp_store and otp_store[email] == otp:
+        if not email or not otp:
+            return {"error": "Email and OTP are required."}, 400
+
+        if email in otp_store and str(otp) == str(otp_store[email]):
             user = User.query.filter_by(email=email).first()
             if user:
                 user.is_verified = True
@@ -191,20 +194,25 @@ class UserLoginResource(Resource):
         """
         User login endpoint. Returns JWT token on success.
         """
-        data = request.get_json()
-        email = data.get("email")
-        password = data.get("password")
+        try:
+            data = request.get_json()
+            email = data.get("email")
+            password = data.get("password")
 
-        if not email or not password:
-            return {"error": "Email and password are required."}, 400
+            if not email or not password:
+                return {"error": "Email and password are required."}, 400
 
-        user = User.query.filter_by(email=email).first()
-        if not user or not check_password_hash(user.password, password):
-            return {"error": "Invalid email or password."}, 401
+            user = User.query.filter_by(email=email).first()
+            if not user or not check_password_hash(user.password, password):
+                return {"error": "Invalid email or password."}, 401
 
-        from app.utils.jwt_utils import generate_jwt_token
-        access_token, refresh_token = generate_jwt_token(user)
-        return {"access_token": access_token, "refresh_token": refresh_token}, 200
+            from app.utils.jwt_utils import generate_jwt_token
+            access_token, refresh_token = generate_jwt_token(user)
+            return {"access_token": access_token, "refresh_token": refresh_token}, 200
+
+        except Exception as e:
+            print(f"Error during login: {e}")
+            return {"error": "An internal error occurred during login."}, 500
 
 class PasswordResetRequestResource(Resource):
     def post(self):
@@ -222,7 +230,6 @@ class PasswordResetRequestResource(Resource):
             return {"error": "User with this email does not exist."}, 404
 
         from flask_jwt_extended import create_access_token
-        # Generate reset token without expiration
         reset_token = create_access_token(identity=user.id, expires_delta=False)
         try:
             send_password_reset_email(email, reset_token)
@@ -245,7 +252,6 @@ class PasswordResetConfirmResource(Resource):
 
         try:
             decoded_token = decode_token(token)
-            # decoded_token['sub'] is a dict with 'id' and 'role'
             user_id = decoded_token.get('sub', {}).get('id')
             if not user_id:
                 return {"error": "Invalid or expired token."}, 400
@@ -261,7 +267,6 @@ class PasswordResetConfirmResource(Resource):
 
         return {"message": "Password has been reset successfully."}, 200
 
-# Add new resources to API
 api.add_resource(UserListResource, '')
 api.add_resource(UserResource, '/<int:user_id>')
 api.add_resource(VerifyOTPResource, '/verify-otp')
