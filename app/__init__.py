@@ -32,8 +32,33 @@ def create_app():
     mail.init_app(app)  # Initialize Flask-Mail with app
 
     import os
-    # Enable CORS for all routes and origins, restrict to FRONTEND_URL or default localhost:3000
-    CORS(app, origins=os.getenv("FRONTEND_URL", "http://localhost:5173"))
+    # Enable CORS for all routes and origins, restrict to FRONTEND_URL or default localhost:5173
+    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+
+    # JWT error handlers
+    from flask_jwt_extended.exceptions import NoAuthorizationError
+    from flask_jwt_extended import exceptions as jwt_exceptions
+    from flask import jsonify
+
+    @jwt.unauthorized_loader
+    def unauthorized_response(callback):
+        return jsonify({"error": "Missing Authorization Header"}), 401
+
+    @jwt.invalid_token_loader
+    def invalid_token_response(callback):
+        return jsonify({"error": "Invalid token"}), 422
+
+    @jwt.expired_token_loader
+    def expired_token_response(jwt_header, jwt_payload):
+        return jsonify({"error": "Token has expired"}), 401
+
+    @jwt.revoked_token_loader
+    def revoked_token_response(jwt_header, jwt_payload):
+        return jsonify({"error": "Token has been revoked"}), 401
+
+    @jwt.needs_fresh_token_loader
+    def needs_fresh_token_response(jwt_header, jwt_payload):
+        return jsonify({"error": "Fresh token required"}), 401
 
     # Import and register all blueprints
     from app.routes import (

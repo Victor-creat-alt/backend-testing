@@ -11,18 +11,27 @@ from functools import wraps
 
 admin_bp = Blueprint('admin', __name__)
 
+import json
+
 def admin_role_required(fn):
     @wraps(fn)
     def wrapper(*args, **kwargs):
         try:
             verify_jwt_in_request()
             claims = get_jwt()
-            if claims.get("role", None) != "Admin":
+            print(f"JWT claims: {claims}")  # Debug log
+            identity = claims.get("sub", {})
+            if isinstance(identity, str):
+                identity = json.loads(identity)
+            print(f"Identity extracted from claims: {identity}")  # Debug log
+            if not identity or identity.get("role") != "Admin":
+                print("Admin role check failed")  # Debug log
                 return jsonify({"error": "Admin access required"}), 403
         except NoAuthorizationError:
             return jsonify({"error": "Authorization token required"}), 401
         return fn(*args, **kwargs)
     return wrapper
+
 
 @admin_bp.route('/admin/users', methods=['GET'])
 @admin_role_required
@@ -45,14 +54,18 @@ def get_all_orders():
     """
     Get all orders in the system (Admin only).
     """
-    orders = Order.query.all()
-    return jsonify([{
-        "id": order.id,
-        "user_id": order.user_id,
-        "total_price": order.total_price,
-        "status": order.status,
-        "created_at": order.created_at
-    } for order in orders]), 200
+    try:
+        orders = Order.query.all()
+        return jsonify([{
+            "id": order.id,
+            "user_id": order.user_id,
+            "total_price": order.total_price,
+            "status": order.status,
+            "created_at": order.created_at
+        } for order in orders]), 200
+    except Exception as e:
+        print(f"Error fetching orders: {str(e)}")
+        return jsonify({"error": "Failed to fetch orders"}), 500
 
 @admin_bp.route('/admin/products/<int:product_id>/stock', methods=['PUT'])
 @admin_role_required
@@ -170,3 +183,23 @@ def disapprove_order(order_id):
     db.session.commit()
     print(f"Order {order_id} disapproved")
     return jsonify({"message": "Order disapproved successfully"}), 200
+
+@admin_bp.route('/admin/service_requests', methods=['GET'])
+@admin_role_required
+def get_all_service_requests():
+    """
+    Get all service requests in the system (Admin only).
+    """
+    try:
+        service_requests = ServiceRequest.query.all()
+        return jsonify([{
+            "id": sr.id,
+            "user_id": sr.user_id,
+            "service_id": sr.service_id,
+            "status": sr.status,
+            "appointment_time": sr.appointment_time,
+            "created_at": sr.created_at
+        } for sr in service_requests]), 200
+    except Exception as e:
+        print(f"Error fetching service requests: {str(e)}")
+        return jsonify({"error": "Failed to fetch service requests"}), 500

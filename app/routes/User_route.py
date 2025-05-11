@@ -252,7 +252,7 @@ class PasswordResetConfirmResource(Resource):
 
         try:
             decoded_token = decode_token(token)
-            user_id = decoded_token.get('sub', {}).get('id')
+            user_id = decoded_token.get('sub')
             if not user_id:
                 return {"error": "Invalid or expired token."}, 400
         except Exception:
@@ -273,3 +273,33 @@ api.add_resource(VerifyOTPResource, '/verify-otp')
 api.add_resource(UserLoginResource, '/login')
 api.add_resource(PasswordResetRequestResource, '/password-reset-request')
 api.add_resource(PasswordResetConfirmResource, '/password-reset-confirm')
+
+@user_bp.route('/verify-email', methods=['GET'])
+def verify_email():
+    """
+    Verify email using token query parameter.
+    """
+    token = request.args.get('token')
+    if not token:
+        return {"error": "Token is required."}, 400
+
+    # Check if token looks like an email address (simple check)
+    if '@' in token:
+        return {"error": "Invalid token format. Use OTP verification instead."}, 400
+
+    try:
+        decoded_token = decode_token(token)
+        user_id = decoded_token.get('sub')
+        if not user_id:
+            return {"error": "Invalid or expired token."}, 400
+    except Exception:
+        return {"error": "Invalid or expired token."}, 400
+
+    user = User.query.get(user_id)
+    if not user:
+        return {"error": "User not found."}, 404
+
+    user.is_verified = True
+    db.session.commit()
+
+    return {"message": "Email verified successfully."}, 200

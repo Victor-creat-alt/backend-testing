@@ -1,5 +1,5 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
-from marshmallow import validates, ValidationError
+from marshmallow import validates, ValidationError, fields
 from app.models.Service import Service
 from app import db  
 
@@ -13,9 +13,13 @@ class ServiceSchema(SQLAlchemyAutoSchema):
     name = auto_field(required=True)
     description = auto_field()
     price = auto_field(required=True)
+    duration = fields.String(required=True)  # Changed from Integer to String
+    image_url = fields.String(required=True)
+
     created_at = auto_field(dump_only=True)
     #updated_at = auto_field(dump_only=True)
-#custom validation
+
+    #custom validation
     @validates("name")
     def validate_name(self, value):
         if not value.strip():

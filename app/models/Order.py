@@ -8,7 +8,7 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     total_price = db.Column(db.Float, nullable=False, default=0.0)
     status = db.Column(db.String(50), nullable=False)
-    delivery_address = db.Column(db.Text, nullable=True)
+    
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     # Relationships
