@@ -1,9 +1,12 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 from marshmallow import validates, ValidationError
 from app.models.OrderItem import OrderItem
+from app.schemas.Product_schemas import ProductSchema
 from app import db  
 
 class OrderItemSchema(SQLAlchemyAutoSchema):
+    product = auto_field(dump_only=True, nested=ProductSchema)
+
     class Meta:
         model = OrderItem
         load_instance = True

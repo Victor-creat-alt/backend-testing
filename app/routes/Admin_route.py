@@ -203,3 +203,72 @@ def get_all_service_requests():
     except Exception as e:
         print(f"Error fetching service requests: {str(e)}")
         return jsonify({"error": "Failed to fetch service requests"}), 500
+
+# CRUD routes for order items
+from app.models.OrderItem import OrderItem
+from app.schemas.Orderitem_schemas import OrderItemSchema
+
+order_item_schema = OrderItemSchema()
+order_items_schema = OrderItemSchema(many=True)
+
+@admin_bp.route('/admin/orders/<int:order_id>/items', methods=['GET'])
+@admin_role_required
+def get_order_items(order_id):
+    """
+    Get all order items for a specific order (Admin only).
+    """
+    try:
+        order_items = OrderItem.query.filter_by(order_id=order_id).all()
+        return jsonify(order_items_schema.dump(order_items)), 200
+    except Exception as e:
+        print(f"Error fetching order items for order {order_id}: {str(e)}")
+        return jsonify({"error": "Failed to fetch order items"}), 500
+
+@admin_bp.route('/admin/orders/<int:order_id>/items', methods=['POST'])
+@admin_role_required
+def create_order_item(order_id):
+    """
+    Create a new order item for a specific order (Admin only).
+    """
+    try:
+        data = request.get_json()
+        data['order_id'] = order_id
+        order_item = order_item_schema.load(data)
+        db.session.add(order_item)
+        db.session.commit()
+        return jsonify(order_item_schema.dump(order_item)), 201
+    except Exception as e:
+        print(f"Error creating order item for order {order_id}: {str(e)}")
+        return jsonify({"error": "Failed to create order item"}), 500
+
+@admin_bp.route('/admin/orders/<int:order_id>/items/<int:item_id>', methods=['PUT'])
+@admin_role_required
+def update_order_item(order_id, item_id):
+    """
+    Update an existing order item for a specific order (Admin only).
+    """
+    try:
+        order_item = OrderItem.query.filter_by(order_id=order_id, id=item_id).first_or_404()
+        data = request.get_json()
+        for key, value in data.items():
+            setattr(order_item, key, value)
+        db.session.commit()
+        return jsonify(order_item_schema.dump(order_item)), 200
+    except Exception as e:
+        print(f"Error updating order item {item_id} for order {order_id}: {str(e)}")
+        return jsonify({"error": "Failed to update order item"}), 500
+
+@admin_bp.route('/admin/orders/<int:order_id>/items/<int:item_id>', methods=['DELETE'])
+@admin_role_required
+def delete_order_item(order_id, item_id):
+    """
+    Delete an order item for a specific order (Admin only).
+    """
+    try:
+        order_item = OrderItem.query.filter_by(order_id=order_id, id=item_id).first_or_404()
+        db.session.delete(order_item)
+        db.session.commit()
+        return jsonify({"message": "Order item deleted successfully"}), 200
+    except Exception as e:
+        print(f"Error deleting order item {item_id} for order {order_id}: {str(e)}")
+        return jsonify({"error": "Failed to delete order item"}), 500
