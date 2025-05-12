@@ -2,7 +2,7 @@ import requests
 import base64
 import os
 import logging
-from flask import jsonify
+# from flask import jsonify # Unused import
 
 # Load environment variables
 MPESA_CONSUMER_KEY = os.getenv("MPESA_CONSUMER_KEY")

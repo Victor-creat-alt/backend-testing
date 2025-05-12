@@ -1,5 +1,6 @@
 from app import db
 from sqlalchemy.sql import func
+from sqlalchemy import CheckConstraint
 
 
 class CartItem(db.Model):
@@ -17,3 +18,10 @@ class CartItem(db.Model):
     cart = db.relationship('Cart', back_populates='items')
     product = db.relationship('Product', back_populates='cart_items')
     service = db.relationship('Service', back_populates='cart_items')
+
+    __table_args__ = (
+        CheckConstraint(
+            '(product_id IS NOT NULL AND service_id IS NULL) OR (product_id IS NULL AND service_id IS NOT NULL)',
+            name='ck_cart_item_type'
+        ),
+    )

@@ -14,7 +14,10 @@ class ServiceSchema(SQLAlchemyAutoSchema):
     description = auto_field()
     price = auto_field(required=True)
     duration = fields.String(required=True)  # Changed from Integer to String
-    image_url = fields.String(required=True)
+    image_url = fields.String(
+        required=True,
+        validate=validate.URL(error="Must be a valid URL.")
+    )
 
     created_at = auto_field(dump_only=True)
     #updated_at = auto_field(dump_only=True)
@@ -24,8 +27,8 @@ class ServiceSchema(SQLAlchemyAutoSchema):
     def validate_name(self, value):
         if not value.strip():
             raise ValidationError("Service name cannot be blank.")
-        if len(value) > 100:
-            raise ValidationError("Service name must be under 100 characters.")
+        if len(value) > 255: # Aligned with model String(255)
+            raise ValidationError("Service name must be under 255 characters.")
 
     @validates("price")
     def validate_price(self, value):

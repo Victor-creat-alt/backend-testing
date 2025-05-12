@@ -13,6 +13,6 @@ class Service(db.Model):
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 
     # Relationships                                                                           
-    service_requests = db.relationship('ServiceRequest', back_populates='service', lazy=True)
-    order_items = db.relationship('OrderItem', back_populates='service', lazy=True)
-    cart_items = db.relationship('CartItem', back_populates='service', lazy=True)
+    service_requests = db.relationship('ServiceRequest', back_populates='service', lazy=True, cascade='all, delete-orphan')
+    order_items = db.relationship('OrderItem', back_populates='service', lazy=True, cascade='all, delete-orphan')
+    cart_items = db.relationship('CartItem', back_populates='service', lazy=True, cascade='all, delete-orphan')

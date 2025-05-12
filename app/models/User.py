@@ -13,7 +13,7 @@ class User(db.Model):
     role = db.Column(db.String(20), default="User")  # "Admin" or "User"
     is_verified = db.Column(db.Boolean, default=False)  # Email verification status
     verification_code = db.Column(db.String(6), nullable=False, default="000000")  # Default value for verification code
-    two_fa_secret = db.Column(db.String(32), nullable=False, default=pyotp.random_base32)  # Default TOTP secret key
+    two_fa_secret = db.Column(db.String(32), nullable=False)  # Default TOTP secret key, generated in signup logic
     is_2fa_enabled = db.Column(db.Boolean, default=False)  # Indicates if 2FA is enabled
     created_at = db.Column(db.DateTime(timezone=True), server_default=func.now())
 

@@ -129,7 +129,6 @@ def get_revenue_stats():
     }), 200
 
 @admin_bp.route('/admin/service_requests/<int:request_id>/approve', methods=['PUT'])
-@admin_bp.route('/admin/service_requests/<int:request_id>/approve/', methods=['PUT'])
 @admin_role_required
 def approve_service_request(request_id):
     """
@@ -143,7 +142,6 @@ def approve_service_request(request_id):
     return jsonify({"message": "Service request approved successfully"}), 200
 
 @admin_bp.route('/admin/service_requests/<int:request_id>/disapprove', methods=['PUT'])
-@admin_bp.route('/admin/service_requests/<int:request_id>/disapprove/', methods=['PUT'])
 @admin_role_required
 def disapprove_service_request(request_id):
     """
@@ -157,7 +155,6 @@ def disapprove_service_request(request_id):
     return jsonify({"message": "Service request disapproved successfully"}), 200
 
 @admin_bp.route('/admin/orders/<int:order_id>/approve', methods=['PUT'])
-@admin_bp.route('/admin/orders/<int:order_id>/approve/', methods=['PUT'])
 @admin_role_required
 def approve_order(order_id):
     """
@@ -171,7 +168,6 @@ def approve_order(order_id):
     return jsonify({"message": "Order approved successfully"}), 200
 
 @admin_bp.route('/admin/orders/<int:order_id>/disapprove', methods=['PUT'])
-@admin_bp.route('/admin/orders/<int:order_id>/disapprove/', methods=['PUT'])
 @admin_role_required
 def disapprove_order(order_id):
     """

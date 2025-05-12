@@ -648,18 +648,6 @@ Base prefix: `/users`
     *   Path Parameters: `user_id` (integer)
     *   Response: JSON message: "User deleted successfully."
 
-*   **POST `/users/login`** (Maps to `UserLoginResource` POST)
-    *   Description: User login.
-    *   Authentication: None.
-    *   Request Body (JSON):
-      ```json
-      {
-        "email": "user@example.com",
-        "password": "password123"
-      }
-      ```
-    *   Response: JSON object with `access_token` and `refresh_token`.
-
 *   **POST `/users/password-reset-request`**
     *   Description: Request a password reset. Sends an email with a reset token.
     *   Authentication: None.

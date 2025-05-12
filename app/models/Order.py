@@ -14,5 +14,5 @@ class Order(db.Model):
     # Relationships
     user = db.relationship('User', back_populates='orders')
     items = db.relationship('OrderItem', back_populates='order', lazy=True, cascade='all, delete-orphan')
-     # Relationships
-    payment = db.relationship('Payment', back_populates='order', uselist=False)  # One-to-one relationship
+    # Relationships
+    payment = db.relationship('Payment', back_populates='order', uselist=False, cascade='all, delete-orphan')  # One-to-one relationship

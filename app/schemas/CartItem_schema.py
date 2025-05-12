@@ -30,5 +30,10 @@ class CartItemSchema(SQLAlchemyAutoSchema):
 
     @validates_schema
     def validate_product_or_service(self, data, **kwargs):
-        if not data.get("product_id") and not data.get("service_id"):
+        product_id_present = data.get("product_id") is not None
+        service_id_present = data.get("service_id") is not None
+
+        if product_id_present and service_id_present:
+            raise ValidationError("Cannot provide both product_id and service_id. Choose one.")
+        if not product_id_present and not service_id_present:
             raise ValidationError("Either product_id or service_id must be provided.")

@@ -132,8 +132,6 @@ class OrderItemResource(Resource):
         order_items = OrderItem.query.filter_by(order_id=order_id).all()
         return order_items_schema.dump(order_items), 200
 
-from flask_jwt_extended import jwt_required
-
 class OrderStatusResource(Resource):
     @jwt_required()
     def put(self, order_id):

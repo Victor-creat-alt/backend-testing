@@ -3,6 +3,7 @@ from app import db
 from app.models.Service_request import ServiceRequest
 from app.schemas.Servicerequest_schemas import ServiceRequestSchema
 from flask_jwt_extended import jwt_required, get_jwt_identity
+from marshmallow import ValidationError # Moved to top
 
 service_request_bp = Blueprint('service_request', __name__, url_prefix='/service_requests')
 service_request_schema = ServiceRequestSchema()
@@ -56,8 +57,6 @@ def get_service_request(id):
     return jsonify(service_request_schema.dump(service_request)), 200
 
 # Creating service request
-from marshmallow import ValidationError
-
 @service_request_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_service_request():

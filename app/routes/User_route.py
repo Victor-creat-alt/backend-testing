@@ -96,31 +96,6 @@ class UserListResource(Resource):
         users = User.query.all()
         return users_schema.dump(users), 200
 
-class UserLoginResource(Resource):
-    def post(self):
-        """
-        User login endpoint. Returns JWT token on success.
-        """
-        try:
-            data = request.get_json()
-            email = data.get("email")
-            password = data.get("password")
-
-            if not email or not password:
-                return {"error": "Email and password are required."}, 400
-
-            user = User.query.filter_by(email=email).first()
-            if not user or not check_password_hash(user.password, password):
-                return {"error": "Invalid email or password."}, 401
-
-            from app.utils.jwt_utils import generate_jwt_token
-            access_token, refresh_token = generate_jwt_token(user)
-            return {"access_token": access_token, "refresh_token": refresh_token}, 200
-
-        except Exception as e:
-            print(f"Error during login: {e}")
-            return {"error": "An internal error occurred during login."}, 500
-
 class PasswordResetRequestResource(Resource):
     def post(self):
         """
@@ -175,7 +150,6 @@ class PasswordResetConfirmResource(Resource):
         return {"message": "Password has been reset successfully."}, 200
 
 api.add_resource(UserListResource, '')
-api.add_resource(UserLoginResource, '/login')
 api.add_resource(PasswordResetRequestResource, '/password-reset-request')
 api.add_resource(PasswordResetConfirmResource, '/password-reset-confirm')
 

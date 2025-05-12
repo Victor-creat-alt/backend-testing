@@ -3,12 +3,7 @@ from flask import jsonify
 from functools import wraps
 import random
 import string
-
-from flask_jwt_extended import verify_jwt_in_request, get_jwt_identity
-from flask import jsonify
-from functools import wraps
-import random
-import string
+# Duplicate imports removed from here
 from app.models.User import User
 
 def role_required(required_role):
@@ -35,9 +30,4 @@ def generate_verification_code(length=6):
     Generate a random numeric verification code of given length.
     """
     return ''.join(random.choices(string.digits, k=length))
-
-def generate_verification_code(length=6):
-    """
-    Generate a random numeric verification code of given length.
-    """
-    return ''.join(random.choices(string.digits, k=length))
+# Removed duplicate function definition
