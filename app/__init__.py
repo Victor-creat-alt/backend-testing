@@ -13,7 +13,10 @@ load_dotenv()
 # Initialize extensions
 db = SQLAlchemy()
 jwt = JWTManager()
-migrate = Migrate()
+# Construct absolute path to migrations directory based on this file's location
+APP_DIR = os.path.abspath(os.path.dirname(__file__))
+MIGRATIONS_DIR_INIT = os.path.join(APP_DIR, 'migrations')
+migrate = Migrate(directory=MIGRATIONS_DIR_INIT)
 mail = Mail()  # Initialize mail instance
 
 def create_app():
@@ -28,10 +31,9 @@ def create_app():
     # Initialize extensions with the app
     db.init_app(app)
     jwt.init_app(app)
-    migrate.init_app(app, db)
+    migrate.init_app(app, db) # Directory is already set in constructor
     mail.init_app(app)  # Initialize Flask-Mail with app
 
-    import os
     # Enable CORS for all routes and origins, restrict to FRONTEND_URL or default localhost:5173
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
     CORS(app, resources={r"/*": {"origins": frontend_url}})

@@ -1,8 +1,8 @@
-"""use of mock payment
+"""Initial migration.
 
-Revision ID: a3ab97643ddc
-Revises: 9b0ab7a5b2b0
-Create Date: 2025-05-05 14:49:51.956484
+Revision ID: 3be17a7deb6c
+Revises: 
+Create Date: 2025-05-12 04:53:42.058291
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'a3ab97643ddc'
-down_revision = '9b0ab7a5b2b0'
+revision = '3be17a7deb6c'
+down_revision = None
 branch_labels = None
 depends_on = None
 
@@ -68,7 +68,6 @@ def upgrade():
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('total_price', sa.Float(), nullable=False),
     sa.Column('status', sa.String(length=50), nullable=False),
-    sa.Column('delivery_address', sa.Text(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id')
