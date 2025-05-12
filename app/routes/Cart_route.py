@@ -33,11 +33,6 @@ class CartResource(Resource):
 
 class CartListResource(Resource):
     @jwt_required()
-    def get(self): # Get all carts (Admin only?) - Consider if this is needed for regular users
-        carts = Cart.query.all()
-        return carts_schema.dump(carts), 200
-
-    @jwt_required()
     def post(self): # Create a cart for the current user if one doesn't exist
         user_id = get_jwt_identity()['id']
         existing_cart = Cart.query.filter_by(user_id=user_id).first()

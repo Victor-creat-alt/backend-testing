@@ -255,8 +255,8 @@ Base prefix: `/cart`
 
 All endpoints in this section require **JWT Authentication**.
 
-*   **GET `/cart`** (Maps to `CartResource` and `CartListResource` GET)
-    *   Description: Get the current authenticated user's cart. If `CartListResource` is hit, it might return all carts (consider admin-only for that). The `CartResource` GET is more specific for the user's cart.
+*   **GET `/cart`**
+    *   Description: Get the current authenticated user's cart.
     *   Authentication: JWT Required.
     *   Response: JSON object of the cart (based on `CartSchema`).
 
@@ -393,7 +393,7 @@ Base prefix: `/payments`
 
 *   **POST `/payments/mpesa`**
     *   Description: Initiate an M-Pesa STK push payment.
-    *   Authentication: Assumed to be JWT protected if user context is needed for `order_id` association, though not explicitly decorated in the provided code.
+    *   Authentication: JWT Required. User's order will be validated.
     *   Request Body (JSON):
       ```json
       {
@@ -624,24 +624,10 @@ All endpoints in this section require **JWT Authentication**.
 
 Base prefix: `/users`
 
-*   **GET `/users`** (Maps to `UserListResource` GET)
-    *   Description: Get a list of all users. (Consider if this should be Admin only).
-    *   Authentication: None (as per current code, but typically admin-only).
+*   **GET `/users`**
+    *   Description: Get a list of all users.
+    *   Authentication: Admin role required.
     *   Response: JSON array of user objects (based on `UserSchema`).
-
-*   **POST `/users`** (Maps to `UserListResource` POST)
-    *   Description: Create a new user. Sends a verification email with OTP.
-    *   Authentication: None.
-    *   Request Body (JSON): (Based on `UserSchema`)
-      ```json
-      {
-        "username": "testuser", // or "name" which gets mapped to username
-        "email": "test@example.com",
-        "password": "securepassword123",
-        "role": "User" // Optional
-      }
-      ```
-    *   Response: JSON message: "User created. Verification email sent."
 
 *   **GET `/users/<int:user_id>`**
     *   Description: Get a user by ID.
@@ -661,18 +647,6 @@ Base prefix: `/users`
     *   Authentication: JWT Required. User can delete their own profile; Admin can delete any.
     *   Path Parameters: `user_id` (integer)
     *   Response: JSON message: "User deleted successfully."
-
-*   **POST `/users/verify-otp`**
-    *   Description: Verify OTP for email verification.
-    *   Authentication: None.
-    *   Request Body (JSON):
-      ```json
-      {
-        "email": "user@example.com",
-        "otp": "123456"
-      }
-      ```
-    *   Response: JSON message indicating verification status.
 
 *   **POST `/users/login`** (Maps to `UserLoginResource` POST)
     *   Description: User login.

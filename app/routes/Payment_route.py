@@ -1,8 +1,11 @@
 import logging
+import logging
 from flask import Blueprint, request, jsonify
 from app.utils.payment_util import initiate_stk_push
 from app import db
 from app.models.Payment import Payment
+from app.models.Order import Order # Import Order model
+from flask_jwt_extended import jwt_required, get_jwt_identity # Import JWT tools
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -11,11 +14,15 @@ logger = logging.getLogger(__name__)
 payment_bp = Blueprint('payment', __name__, url_prefix='/payments')
 
 @payment_bp.route('/mpesa', methods=['POST'])
+@jwt_required() # Protect the endpoint
 def mpesa_payment():
     """
     Handle M-Pesa payment initiation.
     """
     try:
+        current_user = get_jwt_identity()
+        user_id = current_user['id']
+
         data = request.get_json()
         phone_number = data.get("phone_number")
         amount = data.get("amount")
@@ -31,12 +38,11 @@ def mpesa_payment():
             logger.error("order_id is required")
             return jsonify({"error": "order_id is required"}), 400
 
-        # Validate order existence
-        from app.models.Order import Order
-        order = Order.query.get(order_id)
+        # Validate order existence and ownership
+        order = Order.query.filter_by(id=order_id, user_id=user_id).first()
         if not order:
-            logger.error(f"Order with id {order_id} does not exist")
-            return jsonify({"error": f"Order with id {order_id} does not exist"}), 400
+            logger.error(f"Order with id {order_id} does not exist for user {user_id}")
+            return jsonify({"error": f"Order with id {order_id} not found or access denied"}), 404 # Or 403
 
         try:
             response = initiate_stk_push(phone_number, amount, account_reference, transaction_desc)
