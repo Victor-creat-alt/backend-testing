@@ -14,7 +14,7 @@ class Config:
 
     # PostgreSQL Database Configuration
     # Update the DATABASE_URL environment variable with your actual PostgreSQL connection string including username and password
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://victor:1234@localhost:5432/vetty")
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL", "postgresql://vetty_db_wdsu_user:9Q4IRuQRNFWBNUF9EncCq4ujYGkx1YUl@dpg-d0gkpdjuibrs73fnctbg-a.oregon-postgres.render.com/vetty_db_wdsu")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
    

@@ -33,7 +33,8 @@ def create_app():
 
     import os
     # Enable CORS for all routes and origins, restrict to FRONTEND_URL or default localhost:5173
-    CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    CORS(app, resources={r"/*": {"origins": frontend_url}})
 
     # JWT error handlers
     from flask_jwt_extended.exceptions import NoAuthorizationError
