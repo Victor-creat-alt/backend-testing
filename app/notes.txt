@@ -1,6 +1,155 @@
-{
-  "username": "admin",
-  "email": "admin@gmail.com",
-  "password": "admin254",
-  "role": "Admin"
-}
+
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+
+import random
+from faker import Faker
+from datetime import datetime
+from app import create_app, db
+from app.models.User import User
+from app.models.Order import Order
+from app.models.OrderItem import OrderItem
+from app.models.Payment import Payment
+from app.models.Product import Product
+from app.models.Service import Service
+from app.models.Cart import Cart
+from app.models.CartItem import CartItem
+from app.models.Service_request import ServiceRequest
+import pyotp
+from datetime import timedelta
+
+fake = Faker()
+
+def seed_users(num_users=15):
+    app = create_app()
+    with app.app_context():
+        products = Product.query.all()
+        services = Service.query.all()
+
+        for _ in range(num_users):
+            username = fake.user_name()
+            email = fake.unique.email()
+            password = "password123"
+            two_fa_secret = pyotp.random_base32()
+
+            user = User(
+                username=username,
+                email=email,
+                role="User",
+                is_verified=True,
+                two_fa_secret=two_fa_secret,
+                is_2fa_enabled=False,
+                verification_code="000000"
+            )
+            user.set_password(password)
+            db.session.add(user)
+            db.session.flush()  # To get user.id
+
+            # Create cart for user
+            cart = Cart(
+                user_id=user.id,
+                created_at=datetime.utcnow()
+            )
+            db.session.add(cart)
+            db.session.flush()  # To get cart.id
+
+            # Create 1-5 cart items per cart
+            num_cart_items = random.randint(1, 5)
+            for _ in range(num_cart_items):
+                if products and (not services or random.choice([True, False])):
+                    product = random.choice(products)
+                    quantity = random.randint(1, 3)
+                    cart_item = CartItem(
+                        cart_id=cart.id,
+                        product_id=product.id,
+                        quantity=quantity,
+                        created_at=datetime.utcnow()
+                    )
+                elif services:
+                    service = random.choice(services)
+                    quantity = 1
+                    cart_item = CartItem(
+                        cart_id=cart.id,
+                        service_id=service.id,
+                        quantity=quantity,
+                        created_at=datetime.utcnow()
+                    )
+                else:
+                    continue
+                db.session.add(cart_item)
+
+            # Create 1-3 orders per user
+            for _ in range(random.randint(1, 3)):
+                order = Order(
+                    user_id=user.id,
+                    status="pending",
+                    total_price=0.0,
+                    created_at=datetime.utcnow()
+                )
+                db.session.add(order)
+                db.session.flush()  # To get order.id
+
+                total_price = 0.0
+
+                # Create 1-5 order items per order
+                num_items = random.randint(1, 5)
+                for _ in range(num_items):
+                    # Randomly choose product or service
+                    if products and (not services or random.choice([True, False])):
+                        product = random.choice(products)
+                        quantity = random.randint(1, 3)
+                        unit_price = product.price
+                        order_item = OrderItem(
+                            order_id=order.id,
+                            product_id=product.id,
+                            quantity=quantity,
+                            unit_price=unit_price
+                        )
+                    elif services:
+                        service = random.choice(services)
+                        quantity = 1
+                        unit_price = service.price
+                        order_item = OrderItem(
+                            order_id=order.id,
+                            service_id=service.id,
+                            quantity=quantity,
+                            unit_price=unit_price
+                        )
+                    else:
+                        continue
+
+                    db.session.add(order_item)
+                    total_price += unit_price * quantity
+
+                order.total_price = total_price
+
+                # Create payment with method mpesa
+                payment = Payment(
+                    order_id=order.id,
+                    payment_method="mpesa",
+                    amount=total_price,
+                    status="completed",
+                    transaction_id=fake.uuid4(),
+                    created_at=datetime.utcnow()
+                )
+                db.session.add(payment)
+
+            # Create 1 service request per user
+            if services:
+                service = random.choice(services)
+                appointment_time = datetime.utcnow() + timedelta(days=random.randint(1, 30))
+                service_request = ServiceRequest(
+                    user_id=user.id,
+                    service_id=service.id,
+                    status="pending",
+                    appointment_time=appointment_time,
+                    created_at=datetime.utcnow()
+                )
+                db.session.add(service_request)
+
+        db.session.commit()
+        print(f"Seeded {num_users} users with carts, cart items, orders, order items, mpesa payments, and service requests.")
+
+if __name__ == "__main__":
+    seed_users()

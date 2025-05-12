@@ -1,8 +1,0 @@
-HOSTNAME= dpg-d0dm5kqdbo4c738n3s50-a
-PORT=5432
-DATABASE=vetty_db
-USERNAME=vetty_backend_user
-PASSWORD=HTgae8Vjbpr6w5bHikuZKEuxbxIwJ8a2
-INTERNAL_DATABASE_URL=postgresql://vetty_backend_user:HTgae8Vjbpr6w5bHikuZKEuxbxIwJ8a2@dpg-d0dm5kqdbo4c738n3s50-a/vetty_db
-EXTERNAL_DATABASE=postgresql://vetty_backend_user:HTgae8Vjbpr6w5bHikuZKEuxbxIwJ8a2@dpg-d0dm5kqdbo4c738n3s50-a.oregon-postgres.render.com/vetty_db
-PSQL COMMAND=PGPASSWORD=HTgae8Vjbpr6w5bHikuZKEuxbxIwJ8a2 psql -h dpg-d0dm5kqdbo4c738n3s50-a.oregon-postgres.render.com -U vetty_backend_user vetty_db

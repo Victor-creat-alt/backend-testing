@@ -6,15 +6,16 @@ from app.models.Cart import Cart
 from app.schemas.Cart_schemas import CartSchema
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-cart_bp = Blueprint('cart', __name__, url_prefix='/cart') # Corrected URL prefix
+cart_bp = Blueprint('cart', __name__, url_prefix='/cart')  # Corrected URL prefix
 api = Api(cart_bp)
 
 cart_schema = CartSchema()
 carts_schema = CartSchema(many=True)
 
+
 class CartResource(Resource):
     @jwt_required()
-    def get(self): # Removed cart_id from the path and function, will use current user's cart
+    def get(self):  # Removed cart_id from the path and function, will use current user's cart
         user_id = get_jwt_identity()['id']
         cart = Cart.query.filter_by(user_id=user_id).first()
         if cart:
@@ -22,7 +23,7 @@ class CartResource(Resource):
         return {"message": "Cart not found for this user"}, 404
 
     @jwt_required()
-    def delete(self): # Removed cart_id, will delete current user's cart
+    def delete(self):  # Removed cart_id, will delete current user's cart
         user_id = get_jwt_identity()['id']
         cart = Cart.query.filter_by(user_id=user_id).first()
         if cart:
@@ -31,13 +32,14 @@ class CartResource(Resource):
             return {}, 204
         return {"message": "Cart not found for this user"}, 404
 
+
 class CartListResource(Resource):
     @jwt_required()
-    def post(self): # Create a cart for the current user if one doesn't exist
+    def post(self):  # Create a cart for the current user if one doesn't exist
         user_id = get_jwt_identity()['id']
         existing_cart = Cart.query.filter_by(user_id=user_id).first()
         if existing_cart:
-            return cart_schema.dump(existing_cart), 200 # Or maybe 409 Conflict
+            return cart_schema.dump(existing_cart), 200  # Or maybe 409 Conflict
         try:
             cart = Cart(
                 user_id=user_id
@@ -55,7 +57,8 @@ class CartListResource(Resource):
             print(f"Error creating cart: {str(e)}")
             return {"message": "Internal Server Error"}, 500
 
-@cart_bp.route('/total', methods=['GET']) # Removed cart_id from the route, will use current user's cart
+
+@cart_bp.route('/total', methods=['GET'])  # Removed cart_id from the route, will use current user's cart
 @jwt_required()
 def calculate_cart_total():
     """
@@ -65,11 +68,13 @@ def calculate_cart_total():
     cart = Cart.query.filter_by(user_id=user_id).first_or_404()
     total_price = sum(
         (item.product.price if item.product else 0) * item.quantity
+        + (item.service.price if item.service else 0) * item.quantity
         for item in cart.items
     )
     cart.total_price = total_price
     db.session.commit()
     return jsonify({"cart_id": cart.id, "total_price": total_price}), 200
 
+
 api.add_resource(CartListResource, '')
-api.add_resource(CartResource, '') # Updated route to reflect changes
+api.add_resource(CartResource, '')  # Updated route to reflect changes
