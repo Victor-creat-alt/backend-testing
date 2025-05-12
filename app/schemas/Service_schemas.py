@@ -1,5 +1,5 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
-from marshmallow import validates, ValidationError, fields
+from marshmallow import validates, ValidationError, fields, validate # Added validate
 from app.models.Service import Service
 from app import db  
 
