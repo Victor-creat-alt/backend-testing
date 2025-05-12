@@ -40,14 +40,16 @@ def create_app():
     mail.init_app(app)  # Initialize Flask-Mail with app
 
     # Set up CORS
-    local_dev_origin = "http://localhost:5173"
-    allowed_origins = [local_dev_origin] # Always allow local development origin
-
-    # Get the production/environment-specific frontend URL from env var
-    # and add it to the list if it's set and different from the local_dev_origin
+    # Only allow the frontend URL specified in the environment variable
     env_frontend_url = os.getenv('FRONTEND_URL', '').strip()
-    if env_frontend_url and env_frontend_url != local_dev_origin:
+    allowed_origins = []
+    if env_frontend_url:
         allowed_origins.append(env_frontend_url)
+    else:
+        # Fallback if FRONTEND_URL is not set. This is a critical configuration.
+        print("WARNING: FRONTEND_URL environment variable is not set. CORS will likely block frontend requests.")
+        # Consider if you want a hard error here or a very restrictive default.
+        # For now, if not set, allowed_origins will be empty, blocking CORS.
 
     CORS(app,
          resources={r"/*": {"origins": allowed_origins}},
