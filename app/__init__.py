@@ -16,7 +16,7 @@ jwt = JWTManager()
 # Construct absolute path to migrations directory based on this file's location
 APP_DIR = os.path.abspath(os.path.dirname(__file__))
 MIGRATIONS_DIR_INIT = os.path.join(APP_DIR, 'migrations')
-migrate = Migrate(directory=MIGRATIONS_DIR_INIT)
+migrate = Migrate(directory=MIGRATIONS_DIR_INIT) # Instantiated with directory
 mail = Mail()  # Initialize mail instance
 
 def create_app():
@@ -31,12 +31,30 @@ def create_app():
     # Initialize extensions with the app
     db.init_app(app)
     jwt.init_app(app)
-    migrate.init_app(app, db) # Directory is already set in constructor
+    # The directory was set in the Migrate() constructor.
+    # If you want to ensure it's set here relative to app.root_path:
+    # effective_migrations_dir = os.path.join(app.root_path, 'migrations')
+    # migrate.init_app(app, db, directory=effective_migrations_dir)
+    # Using the one from your pasted code:
+    migrate.init_app(app, db, directory='app/migrations')
     mail.init_app(app)  # Initialize Flask-Mail with app
 
-    # Enable CORS for all routes and origins, restrict to FRONTEND_URL or default localhost:5173
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
-    CORS(app, resources={r"/*": {"origins": frontend_url}})
+    # Set up CORS
+    local_dev_origin = "http://localhost:5173"
+    allowed_origins = [local_dev_origin] # Always allow local development origin
+
+    # Get the production/environment-specific frontend URL from env var
+    # and add it to the list if it's set and different from the local_dev_origin
+    env_frontend_url = os.getenv('FRONTEND_URL', '').strip()
+    if env_frontend_url and env_frontend_url != local_dev_origin:
+        allowed_origins.append(env_frontend_url)
+
+    CORS(app,
+         resources={r"/*": {"origins": allowed_origins}},
+         supports_credentials=True,
+         allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
+         methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
+    )
 
     # JWT error handlers
     from flask_jwt_extended.exceptions import NoAuthorizationError
