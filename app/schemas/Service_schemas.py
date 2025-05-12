@@ -1,7 +1,20 @@
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
-from marshmallow import validates, ValidationError, fields, validate # Added validate
+from marshmallow import validates, ValidationError, fields, validate
 from app.models.Service import Service
-from app import db  
+from app import db
+import re
+
+def validate_image_url(value):
+    url_validator = validate.URL(error="Must be a valid URL.")
+    # Accept base64 data URLs starting with "data:image/"
+    if value.startswith("data:image/"):
+        # Basic validation for base64 data URL format
+        pattern = r"^data:image\/[a-zA-Z]+;base64,[A-Za-z0-9+/=\\n\\r]+$"
+        if not re.match(pattern, value):
+            raise ValidationError("Invalid base64 image data URL format.")
+    else:
+        # Validate as normal URL
+        url_validator(value)
 
 class ServiceSchema(SQLAlchemyAutoSchema):
     class Meta:
@@ -16,7 +29,7 @@ class ServiceSchema(SQLAlchemyAutoSchema):
     duration = fields.String(required=True)  # Changed from Integer to String
     image_url = fields.String(
         required=True,
-        validate=validate.URL(error="Must be a valid URL.")
+        validate=validate_image_url
     )
 
     created_at = auto_field(dump_only=True)
