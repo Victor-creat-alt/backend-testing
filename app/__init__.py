@@ -47,9 +47,11 @@ def create_app():
         allowed_origins.append(env_frontend_url)
     else:
         # Fallback if FRONTEND_URL is not set. This is a critical configuration.
-        print("WARNING: FRONTEND_URL environment variable is not set. CORS will likely block frontend requests.")
-        # Consider if you want a hard error here or a very restrictive default.
-        # For now, if not set, allowed_origins will be empty, blocking CORS.
+        fallback_origin = 'https://phase-5-vetty-frontend.vercel.app'
+        allowed_origins.append(fallback_origin)
+        print(f"WARNING: FRONTEND_URL environment variable is not set. Using fallback origin: {fallback_origin}")
+
+    print(f"Allowed CORS origins: {allowed_origins}")
 
     CORS(app,
          resources={r"/*": {"origins": allowed_origins}},
