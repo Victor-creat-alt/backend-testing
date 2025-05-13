@@ -65,12 +65,21 @@ def create_app():
 
     print(f"Allowed CORS origins: {allowed_origins}")
 
+    # Log allowed origins for CORS
+    import logging
+    logging.basicConfig(level=logging.DEBUG)
+    logger = logging.getLogger(__name__)
+    logger.debug(f"Allowed CORS origins: {allowed_origins}")
+
+    # Use allowed_origins from environment variable for CORS
     CORS(app,
          resources={r"/*": {"origins": allowed_origins}},
          supports_credentials=True,
          allow_headers=["Authorization", "Content-Type", "X-CSRF-Token"],
          methods=["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"]
     )
+
+    # Remove explicit OPTIONS method handler as flask-cors handles preflight requests
 
     # JWT error handlers
     from flask_jwt_extended.exceptions import NoAuthorizationError
