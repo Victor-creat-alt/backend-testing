@@ -1,0 +1,100 @@
+.service-request-form-container {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 20px;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.service-request-form-container h2 {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #4f46e5; /* Indigo-600 */
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.service-request-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #374151; /* Gray-700 */
+}
+
+.form-group select,
+.form-group input[type="datetime-local"],
+.form-group input[type="text"],
+.form-group input[type="number"] {
+  padding: 10px 12px;
+  border: 1.5px solid #d1d5db; /* Gray-300 */
+  border-radius: 6px;
+  font-size: 1rem;
+  transition: border-color 0.3s ease;
+}
+
+.form-group select:focus,
+.form-group input[type="datetime-local"]:focus,
+.form-group input[type="text"]:focus,
+.form-group input[type="number"]:focus {
+  outline: none;
+  border-color: #4f46e5; /* Indigo-600 */
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+.form-error {
+  color: #dc2626; /* Red-600 */
+  font-weight: 600;
+  margin-bottom: 10px;
+  text-align: center;
+}
+
+button[type="submit"] {
+  background-color: #4f46e5; /* Indigo-600 */
+  color: white;
+  padding: 12px 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 10px;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background-color: #4338ca; /* Indigo-700 */
+}
+
+button[type="submit"]:disabled {
+  background-color: #a5b4fc; /* Indigo-300 */
+  cursor: not-allowed;
+}
+
+button[type="button"] {
+  background-color: #e5e7eb; /* Gray-200 */
+  color: #374151; /* Gray-700 */
+  padding: 10px 0;
+  font-size: 1rem;
+  font-weight: 600;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 10px;
+  transition: background-color 0.3s ease;
+}
+
+button[type="button"]:hover {
+  background-color: #d1d5db; /* Gray-300 */
+}

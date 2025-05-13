@@ -1,0 +1,96 @@
+/* Service page styling improvements */
+.services-header {
+  background-color: #f9fafb;
+  padding: 20px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.service-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.service-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.15);
+}
+
+.service-image-container {
+  position: relative;
+  padding-bottom: 75%;
+  overflow: hidden;
+}
+
+.service-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.service-info {
+  padding: 16px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.service-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.service-description {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 12px;
+  flex-grow: 1;
+}
+
+.service-price {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #b12704; /* Amazon price red */
+  margin-bottom: 16px;
+}
+
+/* Search and filter inputs */
+input[type="text"], select {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 300px;
+  transition: border-color 0.3s ease;
+}
+
+input[type="text"]:focus, select:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.3);
+}
+
+/* Responsive grid */
+@media (min-width: 640px) {
+  .grid-cols-1 {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-cols-1 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

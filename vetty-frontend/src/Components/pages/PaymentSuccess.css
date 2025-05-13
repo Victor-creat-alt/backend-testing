@@ -1,0 +1,41 @@
+.payment-success-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  background-color: #f0fff0;
+  border: 2px solid #4caf50;
+  border-radius: 8px;
+  margin: 2rem auto;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.payment-success-container h1 {
+  color: #4caf50;
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.payment-success-container p {
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.payment-success-container button {
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.payment-success-container button:hover {
+  background-color: #45a049;
+}

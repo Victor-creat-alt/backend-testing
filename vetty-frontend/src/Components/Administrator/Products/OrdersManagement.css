@@ -1,0 +1,58 @@
+.orders-management-container {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.orders-management-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1e40af;
+  margin-bottom: 1rem;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.order-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.order-details {
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.order-status-paid {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.order-status-unpaid {
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.order-status-shipped {
+  color: #22c55e;
+  font-weight: 600;
+}
+
+.order-status-pending {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.order-actions button {
+  margin-left: 0.5rem;
+}

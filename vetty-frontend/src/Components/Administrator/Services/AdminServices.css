@@ -1,0 +1,97 @@
+.admin-services-container {
+  padding: 1rem;
+  background-color: #f9fafb;
+  border-radius: 8px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.admin-services-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.admin-services-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1e40af;
+}
+
+.admin-services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.admin-service-card {
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  transition: box-shadow 0.3s ease;
+}
+
+.admin-service-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.admin-service-image {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.admin-service-details {
+  padding: 1rem;
+}
+
+.admin-service-name {
+  font-weight: 600;
+  color: #1e40af;
+  margin-bottom: 0.5rem;
+}
+
+.admin-service-description {
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin-bottom: 0.5rem;
+}
+
+.admin-service-price {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.admin-service-actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* New styles to fix modal form layout */
+.modal-content {
+  max-height: 70vh;
+  overflow-y: auto;
+  padding-right: 1rem;
+}
+
+.modal-content .space-y-3 {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.modal-footer {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 1rem;
+  background: white;
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  border-top: 1px solid #e5e7eb;
+}
