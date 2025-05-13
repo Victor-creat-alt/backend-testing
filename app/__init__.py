@@ -53,6 +53,18 @@ def create_app():
 
     print(f"Allowed CORS origins: {allowed_origins}")
 
+    # Revert CORS to allow only the frontend origin with supports_credentials
+    env_frontend_url = os.getenv('FRONTEND_URL', '').strip()
+    allowed_origins = []
+    if env_frontend_url:
+        allowed_origins.append(env_frontend_url)
+    else:
+        fallback_origin = 'https://phase-5-vetty-frontend.vercel.app'
+        allowed_origins.append(fallback_origin)
+        print(f"WARNING: FRONTEND_URL environment variable is not set. Using fallback origin: {fallback_origin}")
+
+    print(f"Allowed CORS origins: {allowed_origins}")
+
     CORS(app,
          resources={r"/*": {"origins": allowed_origins}},
          supports_credentials=True,
