@@ -39,39 +39,30 @@ def create_app():
     migrate.init_app(app, db, directory='app/migrations')
     mail.init_app(app)  # Initialize Flask-Mail with app
 
-    # Set up CORS
-    # Only allow the frontend URL specified in the environment variable
-    env_frontend_url = os.getenv('FRONTEND_URL', '').strip()
-    allowed_origins = []
-    if env_frontend_url:
-        allowed_origins.append(env_frontend_url)
-    else:
-        # Fallback if FRONTEND_URL is not set. This is a critical configuration.
-        fallback_origin = 'https://phase-5-vetty-frontend.vercel.app'
-        allowed_origins.append(fallback_origin)
-        print(f"WARNING: FRONTEND_URL environment variable is not set. Using fallback origin: {fallback_origin}")
-
-    print(f"Allowed CORS origins: {allowed_origins}")
-
-    # Revert CORS to allow only the frontend origin with supports_credentials
-    env_frontend_url = os.getenv('FRONTEND_URL', '').strip()
-    allowed_origins = []
-    if env_frontend_url:
-        allowed_origins.append(env_frontend_url)
-    else:
-        fallback_origin = 'https://phase-5-vetty-frontend.vercel.app'
-        allowed_origins.append(fallback_origin)
-        print(f"WARNING: FRONTEND_URL environment variable is not set. Using fallback origin: {fallback_origin}")
-
-    print(f"Allowed CORS origins: {allowed_origins}")
-
-    # Log allowed origins for CORS
     import logging
     logging.basicConfig(level=logging.DEBUG)
     logger = logging.getLogger(__name__)
-    logger.debug(f"Allowed CORS origins: {allowed_origins}")
 
-    # Use allowed_origins from environment variable for CORS
+    # Set up CORS
+    # Allow origins from FRONTEND_URL environment variable or fallback origin
+    # For development, you can add multiple origins separated by comma or use wildcard '*'
+    env_frontend_url = os.getenv('FRONTEND_URL', '').strip()
+    allowed_origins = []
+
+    if env_frontend_url:
+        # Support multiple origins separated by comma
+        allowed_origins = [origin.strip() for origin in env_frontend_url.split(',') if origin.strip()]
+    else:
+        # Fallback origin if FRONTEND_URL is not set
+        fallback_origin = 'https://phase-5-vetty-frontend.vercel.app'
+        allowed_origins.append(fallback_origin)
+        logger.warning("FRONTEND_URL environment variable is not set. Using fallback origin: %s", fallback_origin)
+
+    # For development, you can uncomment the following line to allow all origins
+    # allowed_origins = ["*"]
+
+    logger.debug("Allowed CORS origins: %s", allowed_origins)
+
     CORS(app,
          resources={r"/*": {"origins": allowed_origins}},
          supports_credentials=True,
