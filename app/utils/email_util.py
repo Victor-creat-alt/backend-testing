@@ -75,42 +75,38 @@ def send_verification_email(email, verification_code):
         logging.error(f"An unexpected error occurred: {e}")
         raise
 
-def send_password_reset_email(email, token):
+def send_password_reset_email(email, verification_code):
     """
-    Send a password reset email with a reset token.
+    Send a password reset email with a verification code.
 
     Note:
     - Ensure SMTP_EMAIL and SMTP_PASSWORD environment variables are set correctly.
-    - The reset link includes the token and email as query parameters.
     """
     sender_email = os.getenv("SMTP_EMAIL")
     sender_password = os.getenv("SMTP_PASSWORD")
     smtp_server = os.getenv("SMTP_SERVER", "smtp.gmail.com")
     smtp_port = os.getenv("SMTP_PORT", "587")
-    frontend_url = os.getenv("FRONTEND_URL")
 
-    if not sender_email or not sender_password or not frontend_url:
-        raise ValueError("SMTP_EMAIL, SMTP_PASSWORD, and FRONTEND_URL environment variables must be set.")
+    if not sender_email or not sender_password:
+        raise ValueError("SMTP_EMAIL and SMTP_PASSWORD environment variables must be set.")
 
     try:
         smtp_port = int(smtp_port)
     except ValueError:
         raise ValueError("SMTP_PORT environment variable must be an integer.")
 
-    reset_link = f"{frontend_url}/reset-password?token={token}&email={email}"
-
     logging.info(f"Using SMTP server: {smtp_server} on port {smtp_port} with user {sender_email}")
 
-    subject = "Reset Your Password - Vetty"
+    subject = "Your Password Reset Verification Code - Vetty"
     html_content = f"""
     <p>You requested to reset your password.</p>
-    <p>Please click the link below to reset your password:</p>
-    <a href="{reset_link}">Reset Password</a>
+    <p>Please use the following verification code to reset your password:</p>
+    <h3>{verification_code}</h3>
     <p>If you did not request this, please ignore this email.</p>
     """
     plain_text_content = f"""
     You requested to reset your password.
-    Please use the following link to reset your password: {reset_link}
+    Please use the following verification code to reset your password: {verification_code}
     If you did not request this, please ignore this email.
     """
 
