@@ -11,6 +11,11 @@ from functools import wraps
 
 admin_bp = Blueprint('admin', __name__)
 
+@admin_bp.before_request
+def skip_options():
+    if request.method == 'OPTIONS':
+        return '', 200
+
 import json
 
 def admin_role_required(fn):

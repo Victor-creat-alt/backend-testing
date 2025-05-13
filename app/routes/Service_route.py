@@ -9,6 +9,11 @@ service_bp = Blueprint('service_bp', __name__)
 service_schema = ServiceSchema()
 services_schema = ServiceSchema(many=True)
 
+@service_bp.before_request
+def skip_options():
+    if request.method == 'OPTIONS':
+        return '', 200
+
 @service_bp.route('/services', methods=['GET'])
 def get_services():
     services = Service.query.all()

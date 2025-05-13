@@ -13,6 +13,11 @@ logger = logging.getLogger(__name__)
 
 payment_bp = Blueprint('payment', __name__, url_prefix='/payments')
 
+@payment_bp.before_request
+def skip_options():
+    if request.method == 'OPTIONS':
+        return '', 200
+
 @payment_bp.route('/mpesa', methods=['POST'])
 @jwt_required()
 def mpesa_payment():
