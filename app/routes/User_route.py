@@ -96,10 +96,13 @@ class UserListResource(Resource):
         users = User.query.all()
         return users_schema.dump(users), 200
 
+import random
+import re
+
 class PasswordResetRequestResource(Resource):
     def post(self):
         """
-        Request password reset. Sends reset email with token.
+        Request password reset. Sends reset email with 6-digit code.
         """
         data = request.get_json()
         email = data.get("email")
@@ -111,10 +114,13 @@ class PasswordResetRequestResource(Resource):
         if not user:
             return {"error": "User with this email does not exist."}, 404
 
-        from flask_jwt_extended import create_access_token
-        reset_token = create_access_token(identity=user.id, expires_delta=False)
+        # Generate a 6-digit numeric verification code
+        verification_code = f"{random.randint(0, 999999):06d}"
+        user.set_verification_code(verification_code)
+        db.session.commit()
+
         try:
-            send_password_reset_email(email, reset_token)
+            send_password_reset_email(email, verification_code)
         except Exception as e:
             return {"error": f"Failed to send reset email: {str(e)}"}, 500
 
@@ -123,28 +129,25 @@ class PasswordResetRequestResource(Resource):
 class PasswordResetConfirmResource(Resource):
     def post(self):
         """
-        Confirm password reset with token and new password.
+        Confirm password reset with 6-digit code and new password.
         """
         data = request.get_json()
-        token = data.get("token")
+        code = data.get("code")
         new_password = data.get("new_password")
 
-        if not token or not new_password:
-            return {"error": "Token and new password are required."}, 400
+        if not code or not new_password:
+            return {"error": "Code and new password are required."}, 400
 
-        try:
-            decoded_token = decode_token(token)
-            user_id = decoded_token.get('sub')
-            if not user_id:
-                return {"error": "Invalid or expired token."}, 400
-        except Exception:
-            return {"error": "Invalid or expired token."}, 400
+        # Validate that code is a 6-digit number
+        if not re.fullmatch(r"\d{6}", code):
+            return {"error": "Invalid code format. Code must be a 6-digit number."}, 400
 
-        user = User.query.get(user_id)
+        user = User.query.filter_by(verification_code=code).first()
         if not user:
-            return {"error": "User not found."}, 404
+            return {"error": "Invalid verification code."}, 400
 
         user.password = generate_password_hash(new_password)
+        user.set_verification_code("000000")  # Reset the verification code
         db.session.commit()
 
         return {"message": "Password has been reset successfully."}, 200
