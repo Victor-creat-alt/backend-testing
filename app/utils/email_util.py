@@ -81,7 +81,7 @@ def send_password_reset_email(email, token):
 
     Note:
     - Ensure SMTP_EMAIL and SMTP_PASSWORD environment variables are set correctly.
-    - The reset link includes the token as a query parameter.
+    - The reset link includes the token and email as query parameters.
     """
     sender_email = os.getenv("SMTP_EMAIL")
     sender_password = os.getenv("SMTP_PASSWORD")
@@ -97,7 +97,7 @@ def send_password_reset_email(email, token):
     except ValueError:
         raise ValueError("SMTP_PORT environment variable must be an integer.")
 
-    reset_link = f"{frontend_url}/reset-password?token={token}"
+    reset_link = f"{frontend_url}/reset-password?token={token}&email={email}"
 
     logging.info(f"Using SMTP server: {smtp_server} on port {smtp_port} with user {sender_email}")
 
