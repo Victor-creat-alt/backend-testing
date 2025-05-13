@@ -121,15 +121,15 @@ def create_app():
     )
     # Import API documentation blueprint
 
-    app.register_blueprint(user_bp)
-    app.register_blueprint(auth_bp, url_prefix='/auth')
-    app.register_blueprint(admin_bp)
-    app.register_blueprint(cart_bp)
-    app.register_blueprint(cart_item_bp)
-    app.register_blueprint(product_bp)
-    app.register_blueprint(payment_bp)
-    app.register_blueprint(order_bp)
-    app.register_blueprint(service_bp)
-    app.register_blueprint(service_request_bp)
+    app.register_blueprint(user_bp, url_prefix='/api')
+    app.register_blueprint(auth_bp, url_prefix='/api/auth')
+    app.register_blueprint(admin_bp, url_prefix='/api')
+    app.register_blueprint(cart_bp, url_prefix='/api')
+    app.register_blueprint(cart_item_bp, url_prefix='/api')
+    app.register_blueprint(product_bp, url_prefix='/api')
+    app.register_blueprint(payment_bp, url_prefix='/api')
+    app.register_blueprint(order_bp, url_prefix='/api')
+    app.register_blueprint(service_bp, url_prefix='/api')
+    app.register_blueprint(service_request_bp, url_prefix='/api')
 
     return app
