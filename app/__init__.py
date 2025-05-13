@@ -59,7 +59,7 @@ def create_app():
         logger.warning("FRONTEND_URL environment variable is not set. Using fallback origin: %s", fallback_origin)
 
     # For development, you can uncomment the following line to allow all origins
-    allowed_origins = ["*"]
+    # allowed_origins = ["*"]
 
     logger.debug("Allowed CORS origins: %s", allowed_origins)
 
